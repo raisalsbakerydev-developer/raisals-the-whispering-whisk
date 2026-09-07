@@ -13,7 +13,13 @@ export function adminTest(req, res) {
     success: true,
     message: 'Authorized admin access confirmed.',
     data: {
-      user: req.user,
+      user: {
+        id: req.user.id,
+        name: req.user.name,
+        email: req.user.email,
+        user_type: req.user.user_type,
+        is_authorized: req.user.is_authorized,
+      },
     },
   })
 }

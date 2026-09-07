@@ -52,6 +52,7 @@ export async function register(req, res, next) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000,
     })
 
@@ -75,6 +76,7 @@ export async function login(req, res, next) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000,
     })
 
@@ -136,6 +138,7 @@ export async function logout(req, res, next) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
     })
 
     return res.status(200).json({
@@ -191,6 +194,7 @@ export async function googleCallback(req, res, next) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
     })
 
     if (!code) {
@@ -230,6 +234,7 @@ export async function googleCallback(req, res, next) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
+      path: '/',
       maxAge: 24 * 60 * 60 * 1000,
     })
 

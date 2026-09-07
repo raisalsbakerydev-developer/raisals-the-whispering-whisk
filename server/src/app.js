@@ -21,6 +21,68 @@ import adminBakeryRoutes from './routes/adminBakeryRoutes.js'
 
 const app = express()
 
+function validateProductionConfiguration() {
+  if (process.env.NODE_ENV !== 'production') return
+
+  const required = [
+    'DATABASE_URL',
+    'CLIENT_URL',
+    'GOOGLE_CLIENT_ID',
+    'GOOGLE_CLIENT_SECRET',
+    'GOOGLE_REDIRECT_URI',
+    'EMAIL_HOST',
+    'EMAIL_PORT',
+    'EMAIL_USER',
+    'EMAIL_PASSWORD',
+    'EMAIL_FROM',
+    'CLOUDINARY_CLOUD_NAME',
+    'CLOUDINARY_API_KEY',
+    'CLOUDINARY_API_SECRET',
+    'ADMIN_BOOTSTRAP_SECRET',
+  ]
+
+  const missing = required.filter((name) => !String(process.env[name] || '').trim())
+  if (missing.length > 0) {
+    const error = new Error(`Missing production configuration: ${missing.join(', ')}`)
+    error.code = 'PRODUCTION_CONFIGURATION_ERROR'
+    throw error
+  }
+
+  for (const name of ['CLIENT_URL', 'GOOGLE_REDIRECT_URI']) {
+    let parsed
+    try {
+      parsed = new URL(process.env[name])
+    } catch {
+      const error = new Error(`${name} must be a valid URL.`)
+      error.code = 'PRODUCTION_CONFIGURATION_ERROR'
+      throw error
+    }
+
+    if (parsed.protocol !== 'https:') {
+      const error = new Error(`${name} must use HTTPS in production.`)
+      error.code = 'PRODUCTION_CONFIGURATION_ERROR'
+      throw error
+    }
+  }
+
+  if (process.env.ADMIN_BOOTSTRAP_SECRET.trim().length < 32) {
+    const error = new Error('ADMIN_BOOTSTRAP_SECRET must be at least 32 characters in production.')
+    error.code = 'PRODUCTION_CONFIGURATION_ERROR'
+    throw error
+  }
+}
+
+validateProductionConfiguration()
+
+app.disable('x-powered-by')
+
+// Vercel sits behind a trusted proxy. This makes req.ip reflect the
+// originating client IP so rate limiting is applied per visitor rather
+// than to the shared platform proxy.
+if (process.env.NODE_ENV === 'production') {
+  app.set('trust proxy', 1)
+}
+
 const allowedOrigins = (
   process.env.CLIENT_URL ||
   'http://localhost:5173'
@@ -28,6 +90,26 @@ const allowedOrigins = (
   .split(',')
   .map((origin) => origin.trim())
   .filter(Boolean)
+
+
+// Browser state-changing requests are protected by SameSite cookies and an
+// explicit Origin check. This blocks cross-site POST/PATCH/PUT/DELETE/
+// requests even if the browser would otherwise attach a session cookie.
+app.use((req, res, next) => {
+  const method = req.method.toUpperCase()
+  if (!['POST', 'PUT', 'PATCH', 'DELETE'].includes(method)) {
+    return next()
+  }
+
+  const origin = req.get('origin')
+  if (!origin || allowedOrigins.includes(origin)) {
+    return next()
+  }
+
+  const error = new Error('Request origin is not allowed.')
+  error.code = 'CORS_ORIGIN_NOT_ALLOWED'
+  return next(error)
+})
 
 app.use(
   cors({

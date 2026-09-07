@@ -349,6 +349,16 @@ export function errorHandler(error, req, res, next) {
     })
   }
 
+  if (error.code === 'PRODUCTION_CONFIGURATION_ERROR') {
+    return res.status(500).json({
+      success: false,
+      error: {
+        code: 'PRODUCTION_CONFIGURATION_ERROR',
+        message: 'The server is not configured correctly for production.',
+      },
+    })
+  }
+
   if (error.code === 'EMAIL_CONFIGURATION_ERROR') {
     return res.status(500).json({
       success: false,

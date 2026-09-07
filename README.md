@@ -19,7 +19,7 @@ npm run dev
 In a second terminal, start the Vite client:
 
 ```bash
-npm --workspace client run dev
+npm --prefix client run dev
 ```
 
 The client defaults to `http://localhost:5000/api` when `VITE_API_URL` is not set.
