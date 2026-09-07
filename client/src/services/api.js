@@ -2,7 +2,7 @@ import { dispatchApiError } from '../lib/errorEvents.js'
 
 const API_URL = (
   import.meta.env.VITE_API_URL ||
-  'http://localhost:5000/api'
+  (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api')
 ).replace(/\/$/, '')
 
 function createApiError(message, options = {}) {

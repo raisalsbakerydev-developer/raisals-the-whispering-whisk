@@ -63,7 +63,7 @@ export function loginWithGoogle(
 
   const apiUrl =
     import.meta.env.VITE_API_URL ||
-    'http://localhost:5000/api'
+    (import.meta.env.DEV ? 'http://localhost:5000/api' : '/api')
 
   const googleAuthUrl =
     import.meta.env.VITE_GOOGLE_AUTH_URL ||

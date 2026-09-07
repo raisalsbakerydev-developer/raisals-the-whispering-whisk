@@ -1,0 +1,33 @@
+{
+  "name": "raisals-bakery",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "npm --prefix server run dev",
+    "start": "npm --prefix server run start",
+    "build": "npm --prefix client ci --ignore-scripts --no-audit --no-fund && npm --prefix client run build",
+    "lint": "npm --prefix client ci --ignore-scripts --no-audit --no-fund && npm --prefix client run lint",
+    "migrate": "npm --prefix server run migrate",
+    "vercel:dev": "npx vercel dev"
+  },
+  "engines": {
+    "node": ">=22 <25"
+  },
+  "dependencies": {
+    "argon2": "^0.45.1",
+    "cloudinary": "^2.11.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "google-auth-library": "^11.0.2",
+    "helmet": "^8.3.0",
+    "nodemailer": "^9.0.6",
+    "pg": "^8.23.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}
