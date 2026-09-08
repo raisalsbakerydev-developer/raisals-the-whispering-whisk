@@ -15,7 +15,7 @@ function Menu() {
   const [category, setCategory] = useState('all')
   const [availability, setAvailability] = useState('available')
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [, setError] = useState('')
   const { count } = useCart()
 
   async function load() {

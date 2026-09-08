@@ -14,9 +14,20 @@ function ThemeProvider({ children }) {
   }, [theme])
 
   const toggleTheme = () => {
-    setTheme((currentTheme) =>
-      currentTheme === 'warm' ? 'cocoa' : 'warm',
-    )
+    const flip = () =>
+      setTheme((currentTheme) =>
+        currentTheme === 'warm' ? 'cocoa' : 'warm',
+      )
+
+    // Progressive enhancement only: where the View Transitions API is
+    // available, the theme swap gets a soft, premium crossfade instead
+    // of an instant snap. Behavior (which theme ends up active) is
+    // identical either way.
+    if (typeof document !== 'undefined' && typeof document.startViewTransition === 'function') {
+      document.startViewTransition(flip)
+    } else {
+      flip()
+    }
   }
 
   return (

@@ -5,8 +5,8 @@ import Container from '../components/common/Container'
 import Section from '../components/common/Section'
 import SectionHeading from '../components/common/SectionHeading'
 import Button from '../components/common/Button'
-import Reveal from '../components/common/Reveal'
 import ReviewAvatar from '../components/common/ReviewAvatar.jsx'
+import ReviewSlideshow from '../components/common/ReviewSlideshow.jsx'
 import { useAuth } from '../context/AuthContext.jsx'
 import {
   createBakeryReview,
@@ -37,7 +37,7 @@ function Stars({ value = 0, interactive = false, onChange }) {
   )
 }
 
-function ReviewForm({ existingReview, onSaved, onDeleted }) {
+function ReviewForm({ existingReview, onSaved, onDeleted, onCancel }) {
   const [rating, setRating] = useState(existingReview?.rating || 0)
   const [reviewText, setReviewText] = useState(existingReview?.reviewText || '')
   const [saving, setSaving] = useState(false)
@@ -142,9 +142,12 @@ function ReviewForm({ existingReview, onSaved, onDeleted }) {
             {saving ? 'Saving...' : existingReview ? 'Update Review' : 'Submit Review'}
           </Button>
           {existingReview && (
-            <Button type="button" variant="ghost" disabled={saving} onClick={() => setDeleteOpen(true)}>
-              Delete Review
-            </Button>
+            <>
+              {onCancel && <Button type="button" variant="secondary" disabled={saving} onClick={onCancel}>Cancel</Button>}
+              <Button type="button" variant="ghost" disabled={saving} onClick={() => setDeleteOpen(true)}>
+                Delete Review
+              </Button>
+            </>
           )}
         </div>
       </form>
@@ -173,6 +176,9 @@ function Reviews() {
   const [myReview, setMyReview] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [editing, setEditing] = useState(false)
+  const [deleteOpen, setDeleteOpen] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   async function loadReviews() {
     setLoading(true)
@@ -206,8 +212,11 @@ function Reviews() {
     }
   }, [reviews])
 
+  const otherReviews = useMemo(() => reviews.filter((review) => review.id !== myReview?.id), [reviews, myReview])
+
   function handleSaved(review) {
     setMyReview(review)
+    setEditing(false)
     setReviews((current) => {
       const withoutMine = current.filter((item) => item.id !== review.id)
       return review.isPublished ? [review, ...withoutMine] : withoutMine
@@ -217,6 +226,22 @@ function Reviews() {
   function handleDeleted() {
     if (myReview) setReviews((current) => current.filter((item) => item.id !== myReview.id))
     setMyReview(null)
+    setEditing(false)
+  }
+
+  async function handleDeleteFromCard() {
+    if (!myReview) return
+    setDeleting(true)
+    setError('')
+    try {
+      await deleteBakeryReview(myReview.id)
+      handleDeleted()
+      setDeleteOpen(false)
+    } catch (nextError) {
+      setError(nextError.message)
+    } finally {
+      setDeleting(false)
+    }
   }
 
   return (
@@ -253,9 +278,33 @@ function Reviews() {
                 )}
               </div>
 
-              {!authLoading && isAuthenticated ? (
+              {!authLoading && isAuthenticated && myReview && !editing ? (
                 <div className="mx-auto mb-14 max-w-3xl">
-                  <ReviewForm existingReview={myReview} onSaved={handleSaved} onDeleted={handleDeleted} />
+                  <div className="mb-4">
+                    <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--color-secondary)]">Your Review</p>
+                    <h2 className="mt-2 font-serif text-3xl">Your review</h2>
+                  </div>
+                  <article className="rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-7 shadow-[var(--shadow-soft)] sm:p-8">
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <ReviewAvatar src={myReview.avatarUrl} name={myReview.reviewerName} userType={myReview.userType} />
+                        <div className="min-w-0">
+                          <p className="font-semibold">{myReview.reviewerName}</p>
+                          <Stars value={myReview.rating} />
+                        </div>
+                      </div>
+                      <span className="rounded-full border border-[var(--color-border)] px-3 py-1 text-[10px] font-semibold uppercase tracking-wider">Your review</span>
+                    </div>
+                    <p className="mt-5 text-base leading-7 text-[var(--color-text)]">“{myReview.reviewText}”</p>
+                    <div className="mt-6 flex flex-wrap justify-end gap-3 border-t border-[var(--color-border)] pt-5">
+                      <Button variant="secondary" onClick={() => setEditing(true)}>Edit Review</Button>
+                      <Button variant="ghost" onClick={() => setDeleteOpen(true)}>Delete Review</Button>
+                    </div>
+                  </article>
+                </div>
+              ) : !authLoading && isAuthenticated ? (
+                <div className="mx-auto mb-14 max-w-3xl">
+                  <ReviewForm existingReview={myReview} onSaved={handleSaved} onDeleted={handleDeleted} onCancel={() => setEditing(false)} />
                 </div>
               ) : !authLoading ? (
                 <div className="mx-auto mb-14 max-w-3xl rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-8 text-center">
@@ -267,23 +316,28 @@ function Reviews() {
                 </div>
               ) : null}
 
-              <div className="grid gap-6 md:grid-cols-2">
-                {reviews.map((review) => (
-                  <Reveal key={review.id} className="h-full">
-                    <article className="h-full rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-7 shadow-[var(--shadow-soft)]">
-                      <Stars value={review.rating} />
-                      <p className="mt-5 text-base leading-7 text-[var(--color-text)]">“{review.reviewText}”</p>
-                      <div className="mt-7 flex items-center gap-3 border-t border-[var(--color-border)] pt-5">
-                        <ReviewAvatar src={review.avatarUrl} name={review.reviewerName} userType={review.userType} />
-                        <div className="min-w-0">
-                          <p className="font-semibold">{review.reviewerName}</p>
-                          <p className="mt-1 text-xs uppercase tracking-wider opacity-50">Overall bakery experience</p>
-                        </div>
-                      </div>
-                    </article>
-                  </Reveal>
-                ))}
-              </div>
+              {otherReviews.length ? (
+                <div className="mx-auto max-w-5xl">
+                  <ReviewSlideshow reviews={otherReviews} perSlide={4} label="What Our Customers Say About Us" />
+                </div>
+              ) : (
+                <div className="mx-auto max-w-3xl rounded-3xl border border-dashed border-[var(--color-border)] p-8 text-center">
+                  <p className="font-serif text-2xl">{myReview ? 'Be the first other customer to share your experience.' : 'Be the first to share your experience with our team.'}</p>
+                </div>
+              )}
+
+              {deleteOpen && (
+                <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/40 p-4" role="dialog" aria-modal="true">
+                  <div className="w-full max-w-md rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] p-7 shadow-2xl">
+                    <h3 className="font-serif text-2xl">Delete your review?</h3>
+                    <p className="mt-3 text-sm leading-6 text-[var(--color-text-muted)]">This will permanently remove your review from our team reviews.</p>
+                    <div className="mt-7 flex justify-end gap-3">
+                      <Button type="button" variant="ghost" onClick={() => setDeleteOpen(false)} disabled={deleting}>Keep Review</Button>
+                      <Button type="button" onClick={handleDeleteFromCard} disabled={deleting}>{deleting ? 'Deleting...' : 'Delete'}</Button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </>
           )}
         </Container>

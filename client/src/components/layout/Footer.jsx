@@ -28,6 +28,7 @@ function Footer() {
       id="contact"
       className="relative overflow-hidden border-t border-[var(--color-border)] bg-[var(--color-surface)]"
     >
+      <div aria-hidden="true" className="ticket-edge relative -mt-[1px]" />
       <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary)] to-transparent opacity-30" />
       <div aria-hidden="true" className="pointer-events-none absolute -left-16 -top-16 h-56 w-56 rounded-full bg-[var(--color-accent)] opacity-[0.06] blur-3xl" />
 
@@ -248,6 +249,14 @@ function Footer() {
         {/* Footer bottom */}
         <div className="border-t border-[var(--color-border)] py-7">
           <div className="flex min-w-0 flex-col gap-3 text-center text-sm text-[var(--color-text-muted)] sm:text-left">
+              <div className="max-w-3xl rounded-xl border border-[var(--color-border)] bg-[var(--color-background)] px-4 py-3 text-left sm:px-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--color-primary)]">
+                  Website &amp; Service Note
+                </p>
+                <p className="mt-1.5 text-xs leading-5 text-[var(--color-text-muted)]">
+                  Our website currently operates on a cost-conscious infrastructure setup. You may occasionally experience brief loading delays, particularly after periods of inactivity, as some services may require a moment to become responsive. These delays are infrastructure-related and do not necessarily indicate an issue with the website. Thank you for your patience and understanding.
+                </p>
+              </div>
               <p className="tracking-[0.01em]">
                 © {new Date().getFullYear()} Raisal's The Whispering Whisk. All
                 rights reserved.
@@ -267,7 +276,7 @@ function Footer() {
                 >
                   Subhankar Pandit
                 </a>{' '}
-                · AI-assisted with ChatGPT &amp; Claude
+                · AI-assisted with ChatGPT (Aether) &amp; Claude
               </p>
             </div>
         </div>

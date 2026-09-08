@@ -8,7 +8,7 @@ import { useError } from '../context/ErrorContext.jsx'
 
 function AdminMenu(){
  const { showError } = useError()
- const [products,setProducts]=useState([]),[loading,setLoading]=useState(true),[error,setError]=useState(''),[category,setCategory]=useState('all'),[showAdd,setShowAdd]=useState(false),[form,setForm]=useState({name:'',category:'',description:'',isAvailable:true,offerEnabled:false,offerType:'percentage',offerValue:'',offerBuyQuantity:1,offerFreeQuantity:1,offerText:''}),[saving,setSaving]=useState(false),[deleteTarget,setDeleteTarget]=useState(null)
+ const [products,setProducts]=useState([]),[loading,setLoading]=useState(true),[,setError]=useState(''),[category,setCategory]=useState('all'),[showAdd,setShowAdd]=useState(false),[form,setForm]=useState({name:'',category:'',description:'',isAvailable:true,offerEnabled:false,offerType:'percentage',offerValue:'',offerBuyQuantity:1,offerFreeQuantity:1,offerText:''}),[saving,setSaving]=useState(false),[deleteTarget,setDeleteTarget]=useState(null)
  async function load(){setLoading(true);setError('');try{const r=await getAdminProducts();setProducts(r.data.products||[])}catch(e){if(!e?.code)showError(e)}finally{setLoading(false)}}
  useEffect(()=>{load()},[])
  const categories=useMemo(()=>['all',...new Set(products.map(p=>p.category))],[products])

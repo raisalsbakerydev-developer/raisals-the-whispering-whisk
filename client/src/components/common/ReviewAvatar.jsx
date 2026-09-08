@@ -1,4 +1,4 @@
-function ReviewAvatar({ src, name = '', userType = null }) {
+function ReviewAvatar({ src, userType = null }) {
   const isAdmin = userType === 'admin'
 
   return (

@@ -7,7 +7,6 @@ import { useAuth } from '../context/AuthContext'
 import { useError } from '../context/ErrorContext.jsx'
 
 import {
-  adminTest,
   getAllUsers,
   promoteUser,
   authorizeAdmin,
@@ -36,14 +35,14 @@ function AdminDashboard() {
 
   const [users, setUsers] = useState([])
   const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  const [, setError] = useState('')
   const [actionLoading, setActionLoading] = useState(null)
   const [adminControl, setAdminControl] = useState(null)
   const [controlLoading, setControlLoading] = useState(true)
   const [controlConfirmOpen, setControlConfirmOpen] = useState(false)
   const [homeMedia, setHomeMedia] = useState({})
   const [homeLoading, setHomeLoading] = useState(true)
-  const [homeError, setHomeError] = useState('')
+  const [, setHomeError] = useState('')
   const fileInputs = useRef({})
   const [bakeryStatus, setBakeryStatus] = useState({ closure: { isClosed: false, note: null }, hours: [] })
   const [bakeryLoading, setBakeryLoading] = useState(true)

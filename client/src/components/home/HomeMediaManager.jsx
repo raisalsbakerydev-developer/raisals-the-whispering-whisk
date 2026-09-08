@@ -95,7 +95,7 @@ function HomeMediaManager() {
       setMessage(`${SLOTS.find((slot) => slot.key === placement)?.label} media updated.`)
     } catch (nextError) {
       if (newMedia?.id) {
-        try { await deleteRegisteredMedia(newMedia.id) } catch {}
+        try { await deleteRegisteredMedia(newMedia.id) } catch { /* Best-effort cleanup after a failed assignment. */ }
       }
       setError(nextError.message)
     } finally {

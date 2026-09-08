@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 
 import Container from '../common/Container'
 import Button from '../common/Button'
@@ -10,21 +10,40 @@ import { useAuth } from '../../context/AuthContext'
 import { useCart } from '../../context/CartContext'
 
 const desktopLinkClass =
-  'whitespace-nowrap text-[0.95rem] font-semibold text-[var(--color-text)] transition-all duration-300 hover:-translate-y-0.5 hover:text-[var(--color-primary)]'
+  'relative whitespace-nowrap text-[0.95rem] font-semibold text-[var(--color-text)] transition-all duration-300 hover:-translate-y-0.5 hover:text-[var(--color-primary)] after:absolute after:-bottom-1.5 after:left-0 after:h-[2px] after:w-full after:origin-left after:scale-x-0 after:bg-[var(--color-primary)] after:transition-transform after:duration-300 hover:after:scale-x-100'
+
+const desktopLinkActiveClass = 'text-[var(--color-primary)] after:scale-x-100'
 
 const mobileLinkClass =
   'rounded-lg px-4 py-3 text-sm font-medium text-[var(--color-text)] transition-colors hover:bg-[var(--color-surface)] hover:text-[var(--color-primary)]'
+
+const mobileLinkActiveClass = 'bg-[var(--color-surface)] text-[var(--color-primary)]'
 
 function Navbar() {
   const { theme, toggleTheme } = useTheme()
   const { count: cartCount } = useCart()
   const { user, loading, isAuthenticated, isAuthorizedAdmin, logout } = useAuth()
+  const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [avatarImageError, setAvatarImageError] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
 
   useEffect(() => {
     setAvatarImageError(false)
   }, [user?.avatarUrl])
+
+  useEffect(() => {
+    function handleScroll() {
+      setScrolled(window.scrollY > 12)
+    }
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  function isActive(path) {
+    return path === '/' ? location.pathname === '/' : location.pathname.startsWith(path)
+  }
 
   function closeMobileMenu() {
     setMobileMenuOpen(false)
@@ -51,9 +70,9 @@ function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-background)]/92 backdrop-blur-xl transition-all duration-300 shadow-[0_4px_24px_rgba(61,41,35,0.035)] hover:shadow-[0_8px_30px_rgba(61,41,35,0.07)]">
+    <header className={`sticky top-0 z-50 border-b border-[var(--color-border)] bg-[var(--color-background)]/92 backdrop-blur-xl transition-all duration-300 ${scrolled ? 'shadow-[0_8px_30px_rgba(61,41,35,0.09)]' : 'shadow-[0_4px_24px_rgba(61,41,35,0.035)]'}`}>
       <Container className="max-w-[96rem]">
-        <nav className="flex min-h-[5.25rem] items-center gap-6 xl:gap-9">
+        <nav className={`flex items-center gap-6 transition-all duration-300 xl:gap-9 ${scrolled ? 'min-h-[4.25rem]' : 'min-h-[5.25rem]'}`}>
           <Link
             to="/"
             onClick={closeMobileMenu}
@@ -66,11 +85,11 @@ function Navbar() {
           </Link>
 
           <div className="hidden min-w-0 flex-1 items-center justify-center gap-7 xl:flex xl:gap-9">
-            <Link to="/" className={desktopLinkClass}>Home</Link>
-            <Link to="/menu" className={desktopLinkClass}>Menu</Link>
-            <Link to="/cart" className={desktopLinkClass}>Cart{cartCount > 0 ? ` · ${cartCount}` : ''}</Link>
-            <Link to="/about" className={desktopLinkClass}>About Us</Link>
-            <Link to="/reviews" className={desktopLinkClass}>Review Our Team</Link>
+            <Link to="/" className={`${desktopLinkClass} ${isActive('/') ? desktopLinkActiveClass : ''}`}>Home</Link>
+            <Link to="/menu" className={`${desktopLinkClass} ${isActive('/menu') ? desktopLinkActiveClass : ''}`}>Menu</Link>
+            <Link to="/cart" className={`${desktopLinkClass} ${isActive('/cart') ? desktopLinkActiveClass : ''}`}>Cart{cartCount > 0 ? ` · ${cartCount}` : ''}</Link>
+            <Link to="/about" className={`${desktopLinkClass} ${isActive('/about') ? desktopLinkActiveClass : ''}`}>About Us</Link>
+            <Link to="/reviews" className={`${desktopLinkClass} ${isActive('/reviews') ? desktopLinkActiveClass : ''}`}>Review Our Team</Link>
             <a href="#contact" onClick={handleContactClick} className={desktopLinkClass}>Contact</a>
           </div>
 
@@ -161,11 +180,11 @@ function Navbar() {
         <div className={`overflow-hidden transition-all duration-300 xl:hidden ${mobileMenuOpen ? 'max-h-[700px] pb-6 opacity-100' : 'max-h-0 opacity-0'}`}>
           <div className="border-t border-[var(--color-border)] pt-5">
             <div className="flex flex-col gap-1">
-              <Link to="/" onClick={closeMobileMenu} className={mobileLinkClass}>Home</Link>
-              <Link to="/menu" onClick={closeMobileMenu} className={mobileLinkClass}>Menu</Link>
-              <Link to="/cart" onClick={closeMobileMenu} className={mobileLinkClass}>Cart{cartCount > 0 ? ` · ${cartCount}` : ''}</Link>
-              <Link to="/about" onClick={closeMobileMenu} className={mobileLinkClass}>About Us</Link>
-              <Link to="/reviews" onClick={closeMobileMenu} className={mobileLinkClass}>Review Our Team</Link>
+              <Link to="/" onClick={closeMobileMenu} className={`${mobileLinkClass} ${isActive('/') ? mobileLinkActiveClass : ''}`}>Home</Link>
+              <Link to="/menu" onClick={closeMobileMenu} className={`${mobileLinkClass} ${isActive('/menu') ? mobileLinkActiveClass : ''}`}>Menu</Link>
+              <Link to="/cart" onClick={closeMobileMenu} className={`${mobileLinkClass} ${isActive('/cart') ? mobileLinkActiveClass : ''}`}>Cart{cartCount > 0 ? ` · ${cartCount}` : ''}</Link>
+              <Link to="/about" onClick={closeMobileMenu} className={`${mobileLinkClass} ${isActive('/about') ? mobileLinkActiveClass : ''}`}>About Us</Link>
+              <Link to="/reviews" onClick={closeMobileMenu} className={`${mobileLinkClass} ${isActive('/reviews') ? mobileLinkActiveClass : ''}`}>Review Our Team</Link>
               <a href="#contact" onClick={handleContactClick} className={mobileLinkClass}>Contact</a>
             </div>
 

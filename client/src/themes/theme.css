@@ -160,3 +160,114 @@ a[role="button"] {
     transform: none !important;
   }
 }
+
+/* =========================================================
+   ATELIER LAYER — signature bakery art-direction devices
+   Additive, visual-only. No selectors below alter markup
+   structure, logic, or existing class contracts.
+   ========================================================= */
+
+:root {
+  /* A second, deeper ink tone for fine linework (stamps, rules) */
+  --color-ink: color-mix(in srgb, var(--color-primary) 88%, black 12%);
+  --color-paper-grain: color-mix(in srgb, var(--color-primary) 5%, transparent);
+  --shadow-stamp: 0 10px 18px color-mix(in srgb, var(--color-primary) 22%, transparent);
+  --grain-opacity: 0.05;
+}
+
+[data-theme='cocoa'] {
+  --color-ink: color-mix(in srgb, var(--color-accent) 90%, white 10%);
+  --color-paper-grain: color-mix(in srgb, black 40%, transparent);
+  --grain-opacity: 0.09;
+}
+
+/* Fine paper-grain texture — a single shared SVG noise layer.
+   Extremely lightweight, GPU-cheap, never intercepts pointer events. */
+.grain-surface {
+  position: relative;
+  isolation: isolate;
+}
+
+.grain-surface::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  opacity: var(--grain-opacity);
+  mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+[data-theme='cocoa'] .grain-surface::after {
+  mix-blend-mode: overlay;
+}
+
+/* A restrained double-rule, print-menu-inspired divider. Replaces
+   nothing — purely an optional decorative element for section breaks. */
+.atelier-rule {
+  position: relative;
+  height: 6px;
+}
+
+.atelier-rule::before,
+.atelier-rule::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: var(--color-hairline);
+}
+
+.atelier-rule::before { top: 0; }
+.atelier-rule::after { bottom: 0; opacity: 0.55; }
+
+/* Wax-seal style stamp — used for offer/highlight badges. A circular
+   ink-stamped mark rather than a generic pill, with a faint rotated
+   "imprint" for handcrafted authenticity. */
+.stamp-badge {
+  position: relative;
+  transform: rotate(-4deg);
+}
+
+.stamp-badge::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1px dashed color-mix(in srgb, var(--color-accent-foreground) 45%, transparent);
+  opacity: 0.5;
+}
+
+/* Perforated / ticket edge — a soft scalloped rule used to separate
+   the footer from the page like a torn receipt or bakery ticket. */
+.ticket-edge {
+  --scallop: 18px;
+  height: 10px;
+  background-image: radial-gradient(
+    circle at var(--scallop) 0,
+    transparent calc(var(--scallop) / 2 - 1px),
+    var(--color-background) calc(var(--scallop) / 2)
+  );
+  background-size: var(--scallop) 100%;
+  background-repeat: repeat-x;
+}
+
+/* Elegant crossfade for the light/dark theme switch. Applied to the
+   whole document root so any element carrying color-mix-based tokens
+   settles smoothly instead of snapping. */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: 520ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stamp-badge { transform: none; }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
