@@ -41,7 +41,7 @@ function validateProductPayload(data, partial = false) {
   if (data.isAvailable !== undefined && typeof data.isAvailable !== 'boolean') fields.isAvailable = 'Availability must be true or false.'
   if (data.offerEnabled !== undefined && typeof data.offerEnabled !== 'boolean') fields.offerEnabled = 'Offer status must be true or false.'
   if (data.offerType !== undefined && !['percentage', 'fixed', 'buy_get', 'custom'].includes(data.offerType)) fields.offerType = 'Offer type must be percentage, fixed, Buy X Get Y Free, or Custom Offer.'
-  if (data.offerText !== undefined && data.offerText !== null && (typeof data.offerText !== 'string' || data.offerText.trim().length < 1 || data.offerText.trim().length > 120)) fields.offerText = 'Custom offer must contain 1–120 characters.'
+  if (data.offerEnabled === true && data.offerType === 'custom' && (typeof data.offerText !== 'string' || data.offerText.trim().length < 1 || data.offerText.trim().length > 120)) fields.offerText = 'Custom offer must contain 1–120 characters.'
   if (data.offerValue !== undefined) {
     const value = Number(data.offerValue)
     if (!Number.isFinite(value) || value < 0) fields.offerValue = 'Discount must be a valid non-negative number.'
