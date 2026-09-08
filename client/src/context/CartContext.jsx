@@ -51,11 +51,29 @@ export function CartProvider({ children }) {
     setItems((current) => {
       const key = `${product.id}:${variant.id}`
       const found = current.find((item) => item.key === key)
+      const offerEnabled = product.offerEnabled === true
+      const price = Number(offerEnabled ? (variant.discountedPrice ?? variant.price) : variant.price)
+      const originalPrice = Number(variant.originalPrice ?? variant.price)
+      const offerLabel = offerEnabled ? (product.offerLabel || null) : null
+      const offerText = offerEnabled ? (product.offerText || null) : null
+      const offerType = offerEnabled ? (product.offerType || null) : null
+      const buyQuantity = offerEnabled ? Number(product.offerBuyQuantity || 0) : 0
+      const freeQuantity = offerEnabled ? Number(product.offerFreeQuantity || 0) : 0
 
       if (found) {
         return current.map((item) =>
           item.key === key
-            ? { ...item, quantity: item.quantity + quantity }
+            ? {
+                ...item,
+                quantity: item.quantity + quantity,
+                price,
+                originalPrice,
+                offerLabel,
+                offerText,
+                offerType,
+                buyQuantity,
+                freeQuantity,
+              }
             : item,
         )
       }
@@ -70,13 +88,13 @@ export function CartProvider({ children }) {
           variantLabel: variant.label,
           weight: variant.weight,
           serves: variant.serves,
-          price: Number(variant.discountedPrice ?? variant.price),
-          originalPrice: Number(variant.originalPrice ?? variant.price),
-          offerLabel: product.offerLabel || null,
-          offerText: product.offerText || null,
-          offerType: product.offerType || null,
-          buyQuantity: Number(product.offerBuyQuantity || 0),
-          freeQuantity: Number(product.offerFreeQuantity || 0),
+          price,
+          originalPrice,
+          offerLabel,
+          offerText,
+          offerType,
+          buyQuantity,
+          freeQuantity,
           quantity,
         },
       ]
@@ -139,17 +157,18 @@ export function CartProvider({ children }) {
     }
 
     function orderSingle(product, variant) {
+      const offerEnabled = product.offerEnabled === true
       const item = {
         productName: product.name,
         variantLabel: variant.label,
         weight: variant.weight,
         serves: variant.serves,
-        price: Number(variant.discountedPrice ?? variant.price),
+        price: Number(offerEnabled ? (variant.discountedPrice ?? variant.price) : variant.price),
         originalPrice: Number(variant.originalPrice ?? variant.price),
-        offerLabel: product.offerLabel || null,
-        offerType: product.offerType || null,
-        buyQuantity: Number(product.offerBuyQuantity || 0),
-        freeQuantity: Number(product.offerFreeQuantity || 0),
+        offerLabel: offerEnabled ? (product.offerLabel || null) : null,
+        offerType: offerEnabled ? (product.offerType || null) : null,
+        buyQuantity: offerEnabled ? Number(product.offerBuyQuantity || 0) : 0,
+        freeQuantity: offerEnabled ? Number(product.offerFreeQuantity || 0) : 0,
         quantity: 1,
       }
 

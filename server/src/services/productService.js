@@ -107,8 +107,9 @@ function getOfferLabel(offerEnabled, offerType, offerValue, offerBuyQuantity, of
 }
 
 function serializeVariant(row, offer = {}) {
+  const offerEnabled = offer.offerEnabled === true
   const originalPrice = Number(row.price)
-  const discountedPrice = calculateOfferPrice(originalPrice, offer.offerEnabled, offer.offerType, offer.offerValue)
+  const discountedPrice = calculateOfferPrice(originalPrice, offerEnabled, offer.offerType, offer.offerValue)
   return {
     id: row.id,
     label: row.label,
@@ -119,9 +120,9 @@ function serializeVariant(row, offer = {}) {
     originalPrice,
     discountedPrice,
     hasDiscount: discountedPrice < originalPrice,
-    offerType: offer.offerType || null,
-    offerBuyQuantity: Number(offer.offerBuyQuantity || 0),
-    offerFreeQuantity: Number(offer.offerFreeQuantity || 0),
+    offerType: offerEnabled ? (offer.offerType || null) : null,
+    offerBuyQuantity: offerEnabled ? Number(offer.offerBuyQuantity || 0) : 0,
+    offerFreeQuantity: offerEnabled ? Number(offer.offerFreeQuantity || 0) : 0,
     displayOrder: row.display_order,
   }
 }
