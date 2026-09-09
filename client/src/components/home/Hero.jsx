@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Container from '../common/Container'
 import Button from '../common/Button'
 import Reveal from '../common/Reveal'
@@ -25,7 +26,7 @@ function Hero({ media }) {
               </svg>
               100% Pure Vegetarian Bakery
             </p>
-            <div className="mt-8 flex flex-wrap gap-4"><Button>Explore Menu</Button><Button variant="secondary">Our Story</Button></div>
+            <div className="mt-8 flex flex-wrap gap-4"><Link to="/menu"><Button>Explore Menu</Button></Link><Link to="/about"><Button variant="secondary">Our Story</Button></Link></div>
           </div></Reveal>
           <Reveal className="relative reveal-right" delay={140}><div className="relative"><div aria-hidden="true" className="pointer-events-none absolute -inset-3 rounded-[2.5rem] border border-dashed border-[var(--color-hairline)] opacity-70 hidden sm:block" /><div className="hero-media-float bakery-media-frame aspect-[4/3] overflow-hidden rounded-[2rem] border border-[var(--color-border)] bg-[var(--color-surface)] shadow-[var(--shadow-soft)] transition-shadow duration-500 hover:shadow-[var(--shadow-hover)]">
             {media?.url ? (media.resourceType === 'video' ? <video className="h-full w-full object-contain" src={media.url} autoPlay muted loop playsInline /> : <img className="h-full w-full object-contain" src={media.url} alt={media.altText || "Raisal's The Whispering Whisk"} />) : <div className="placeholder-shimmer flex h-full items-center justify-center text-center text-[var(--color-text-muted)]"><div><p className="font-serif text-2xl italic">Product Media</p><p className="mt-2 text-sm">Images & videos will appear here</p></div></div>}

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Container from '../common/Container'
 import Button from '../common/Button'
@@ -9,12 +9,16 @@ import { getOffers } from '../../services/productService.js'
 
 function MenuOffersSection() {
   const [offers, setOffers] = useState([])
+  const [activeGroup, setActiveGroup] = useState(0)
 
   useEffect(() => {
     let active = true
     getOffers()
       .then((response) => {
-        if (active) setOffers((response.data.products || []).slice(0, 3))
+        if (active) {
+          setOffers(response.data.products || [])
+          setActiveGroup(0)
+        }
       })
       .catch(() => {
         if (active) setOffers([])
@@ -22,7 +26,39 @@ function MenuOffersSection() {
     return () => { active = false }
   }, [])
 
+  const groups = useMemo(() => {
+    const result = []
+    for (let index = 0; index < offers.length; index += 3) {
+      result.push(offers.slice(index, index + 3))
+    }
+    return result
+  }, [offers])
+
+  useEffect(() => {
+    if (groups.length <= 1) return undefined
+    const timer = window.setInterval(() => {
+      setActiveGroup((current) => (current + 1) % groups.length)
+    }, 5500)
+    return () => window.clearInterval(timer)
+  }, [groups.length])
+
+  useEffect(() => {
+    if (activeGroup >= groups.length && groups.length > 0) {
+      setActiveGroup(0)
+    }
+  }, [activeGroup, groups.length])
+
   if (!offers.length) return null
+
+  const visibleOffers = groups[activeGroup] || []
+
+  function previousGroup() {
+    setActiveGroup((current) => (current - 1 + groups.length) % groups.length)
+  }
+
+  function nextGroup() {
+    setActiveGroup((current) => (current + 1) % groups.length)
+  }
 
   return (
     <section className="border-b border-[var(--color-border)] bg-[var(--color-surface)]/70 py-10 sm:py-12">
@@ -36,8 +72,9 @@ function MenuOffersSection() {
           <a href="#menu-products" className="text-sm font-semibold text-[var(--color-primary)] hover:underline">Browse all treats ↓</a>
         </div>
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {offers.map((product, index) => {
+        <div className="relative">
+          <div className="grid gap-8 md:grid-cols-3">
+          {visibleOffers.map((product, index) => {
             const variant = product.variants?.[0]
             return (
               <Reveal key={product.id} delay={index * 110}>
@@ -59,6 +96,19 @@ function MenuOffersSection() {
               </Reveal>
             )
           })}
+          </div>
+
+          {groups.length > 1 && (
+            <div className="mt-8 flex items-center justify-center gap-4">
+              <button type="button" onClick={previousGroup} aria-label="Previous special offers" className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-lg transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]">←</button>
+              <div className="flex items-center gap-2" aria-label="Special offer slides">
+                {groups.map((_, index) => (
+                  <button key={index} type="button" onClick={() => setActiveGroup(index)} aria-label={`Show special offers ${index + 1}`} className={`h-2.5 rounded-full transition-all ${index === activeGroup ? 'w-8 bg-[var(--color-primary)]' : 'w-2.5 bg-[var(--color-border)]'}`} />
+                ))}
+              </div>
+              <button type="button" onClick={nextGroup} aria-label="Next special offers" className="flex h-10 w-10 items-center justify-center rounded-full border border-[var(--color-border)] bg-[var(--color-surface)] text-lg transition hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]">→</button>
+            </div>
+          )}
         </div>
       </Container>
     </section>

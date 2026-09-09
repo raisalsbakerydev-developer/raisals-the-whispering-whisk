@@ -324,3 +324,108 @@ a[role="button"] {
     transform: none !important;
   }
 }
+
+/* =========================================================
+   MOBILE / TABLET MOTION OPTIMIZATION
+   Motion/rendering only. Desktop/laptop behavior is unchanged.
+   ========================================================= */
+
+@media (max-width: 1023px) {
+  :root {
+    --motion-fast: 150ms;
+    --motion-base: 240ms;
+    --motion-slow: 480ms;
+  }
+
+  body {
+    background-attachment: scroll;
+    transition-duration: 280ms;
+  }
+
+  /* Keep the same reveal language, but reduce travel and stagger so
+     scrolling does not require large composited movements. */
+  .reveal {
+    transform: translateY(16px);
+    transition-duration: var(--motion-slow);
+    transition-delay: min(var(--reveal-delay, 0ms), 60ms);
+  }
+
+  .reveal-left { transform: translateX(-20px); }
+  .reveal-right { transform: translateX(20px); }
+  .reveal-scale { transform: scale(0.985); }
+
+  .reveal-visible.reveal-left,
+  .reveal-visible.reveal-right,
+  .reveal-visible.reveal-scale {
+    transform: translate(0) scale(1);
+  }
+
+  /* The same card treatment remains, with a shorter transition on
+     touch-sized viewports. Hover lift itself is already restricted
+     to fine pointers elsewhere. */
+  .bakery-card {
+    transition-duration: 240ms;
+  }
+
+  /* Mobile browsers can retain :hover after a tap. Keep the premium
+     surface treatment without the heavier hover shadow. */
+  .bakery-card:hover {
+    box-shadow: var(--shadow-soft);
+  }
+
+  /* The sticky navbar and Menu category bar are visible during scroll,
+     so a lighter blur reduces backdrop-filter work on mobile. */
+  .backdrop-blur-xl {
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+  }
+
+  /* Decorative blur remains part of the visual language, but the
+     smaller blur footprint is easier for mobile GPUs to composite. */
+  .blur-3xl {
+    filter: blur(40px);
+  }
+
+  /* Keep continuous decorative motion subtle rather than removing it. */
+  .hero-media-float {
+    animation-duration: 7s;
+  }
+
+  .float-badge {
+    animation-duration: 4.5s;
+  }
+
+  .placeholder-shimmer {
+    animation-duration: 4s;
+  }
+
+  /* Tone down the fixed paper-grain layer on smaller GPUs while
+     preserving the texture and brand character. */
+  body::after {
+    --grain-opacity: 0.03;
+    background-size: 200px 200px;
+  }
+
+  .grain-surface::after {
+    --grain-opacity: 0.03;
+    background-size: 200px 200px;
+  }
+
+  /* Theme crossfade remains intact, just shorter on small screens. */
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation-duration: 360ms;
+  }
+
+  /* Existing utility transitions are kept, but capped to a
+     mobile-friendly duration without changing their visual role. */
+  .transition-all,
+  .transition-transform,
+  .transition-colors,
+  .transition-opacity,
+  .transition-shadow {
+    transition-duration: var(--motion-base);
+  }
+
+  .duration-500 { transition-duration: 400ms; }
+}
